@@ -1,45 +1,45 @@
 (function(win){
 
-	var doc = win.document;
+    var doc = win.document;
 	
     var Qip = {
         name : 'qip101',
-		varsion : '1.0.01',
+        varsion : '1.0.01',
 
         id : function(id) {
             return doc.getElementById(id);
         },
 
-		config : {
-		},
+        config : {
+        },
 		
-		utils : {
-			now : Date.now || function() {
-				return new Date().getTime;
-			},
-			isNum : function(val) {
-				return (typeof val !== 'undefined' && val !== null && !isNaN(val) && val.trim() !== '');
-			},
-			rand : Math.random,
-			randGen : function(min, max) {
-				if(!min) min = 0;
-				if(!max) max = 1;
-				return ((Math.random() * (max - min + 1)) + min);
-			},
-			sin : Math.sin,
-			cos : Math.cos,
-			floor : Math.floor,
-			atan2 : Math.atan2,
-			toHex : function(val) {
-				var ret = '', pos = 0;
-				while(pos < val.length){
-					ret += val.charCodeAt(pos++).toString(16);
-				}
-				return ret;
-			},
-		},
+        utils : {
+            now : Date.now || function() {
+                return new Date().getTime;
+            },
+            isNum : function(val) {
+                return (typeof val !== 'undefined' && val !== null && !isNaN(val) && val.trim() !== '');
+            },
+            rand : Math.random,
+            randGen : function(min, max) {
+                if(!min) min = 0;
+                if(!max) max = 1;
+                return ((Math.random() * (max - min + 1)) + min);
+            },
+            sin : Math.sin,
+            cos : Math.cos,
+            floor : Math.floor,
+            atan2 : Math.atan2,
+            toHex : function(val) {
+                var ret = '', pos = 0;
+                while(pos < val.length){
+                    ret += val.charCodeAt(pos++).toString(16);
+                }
+                return ret;
+            }
+        },
 		
-		// DOM coords
+        // DOM coords
         getPos : function(elem) {
             var offset = getOffsets(elem);
             var scroll = getScrolls(elem);
@@ -94,7 +94,7 @@
                 win = win || window;
                 evn = evn || win.event;
                 doc = doc.documentElement || doc.body;
-				var touches = evn.touches || evt.changedTouches;
+                var touches = evn.touches || evt.changedTouches;
                 if(touches && touches.length) {
                     evn = evn.touches[0];
                 }
@@ -106,30 +106,30 @@
             },
             stop: function(evn) {
                 if (typeof evn.stopPropagation !== 'undefined') {
-					evn.stopPropagation();
-				}
+                    evn.stopPropagation();
+                }
                 evn.cancelBubble = true;
                 if (typeof evn.preventDefault !== 'undefined') {
-					evn.preventDefault();
-				}
+                    evn.preventDefault();
+                }
                 else {
-					evn.returnValue = false;
-				}
+                    evn.returnValue = false;
+                }
             }
         },
 		
-		addEvent : function(obj, type, func) {
+        addEvent : function(obj, type, func) {
             if (obj.addEventListener) {
                 obj.addEventListener(type, func, false);
             }else{
                 obj.attachEvent('on' + type, func);
             }
-        },
+        }
     };
 	
-	// OOP functions
-	Qip.oop = {
-		/*
+    // OOP functions
+    Qip.oop = {
+        /*
          * extend origin with ext attrs
          * if target: extends with both origin and ext attrs
          */
@@ -299,7 +299,7 @@
             return ans;
         },
 		
-		destroy : function(elem) {
+        destroy : function(elem) {
             this.clean(elem);
             if (elem.parentNode)
                 elem.parentNode.removeChild(elem);
@@ -312,7 +312,7 @@
                 this.destroy(ch[i]);
             }
         }
-	};
+    };
 	
     win.qip = Qip;
 
