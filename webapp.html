@@ -1,0 +1,130 @@
+<!DOCTYPE HTML>
+<html>
+    <head>
+        <!-- Pagina HTML 5 -->
+        <title>Test webapp</title>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <!-- Il seguente attributo "type" è superfluo per HTML5 ma richiesto per XHTML 1.0 e HTML 4.01 -->
+        <script type="text/javascript">
+            /*
+             * Come testi per JavaScript suggerisco:
+             * http://it-ebooks.info/book/416/
+             * http://it-ebooks.info/book/274/
+             *
+             * Per documentazione ed esempi:
+             * http://learnxinyminutes.com/docs/javascript/
+             * e link a fine pagina
+             *
+             * N.B.: cerca i TODO nel codice seguente :-)
+             */
+
+            /*
+             * La funzione "saluta" si potrebbe anche definire con:
+             * function saluta() {...}
+             * e spesso si trova in questa forma sintattica.
+             * E' però preferibile usare la seguente sintassi:
+             */
+            var saluta = function() {
+                // carica l'oggetto della pagina con ID = txtSaluto
+                var txt = document.getElementById('txtSaluto');
+                // se presente (altrimenti "undefined" che equivale a false)
+                if(txt){
+                    // ne ricava il valore
+                    var msg = txt.value;
+                    // chiama il log nella "libreria" di test
+                    logX(msg);
+                }
+            };  // questo punto e virgola viene aggiunto automaticamente, meglio scriverlo esplicitamente
+
+            /*
+             * Funzione che ottiene i dati dall'accelerometro, da testare
+             */
+            var getAccelerazioneX = function() {
+                // TODO sostituire con la chiamata ad android:
+                var valX = parseFloat(33.3); //parseFloat(Android.getAccX());
+                
+                logX('Accelerazione X: ' + valX);
+            };
+
+            /*
+             * Crea un namespace chiamato "grafici" per evitare sovrapposizioni di funzioni.
+             * Se hai una funzione "disegna" in qualche altro script, non vanno in collisione
+             * (sono variabili quindi l'ultima dichiarata rimane, l'altra viene sovrascritta)
+             * Nota: se già esiste lo usa, altrimenti crea un nuovo oggetto vuoto
+             */
+            var grafici = grafici || {};
+            
+            /*
+             * Disegna un segmento random nel canvas
+             * Non si usa il var in quanto è definita dentro "grafici"
+             */
+            grafici.disegna = function() {
+                var canvas = document.getElementById('canvas');
+                var context = canvas.getContext('2d');
+                var x0 =  Math.random() * 270;
+                var y0 =  Math.random() * 270;
+                var x1 =  Math.random() * 270;
+                var y1 =  Math.random() * 270;
+                context.moveTo(x0, y0);
+                context.lineTo(x1, y1);
+                context.stroke();
+            };
+
+            /*
+             * Mostra il canvas se nascosto (si nasconde con il doppio click / tap)
+             */
+            grafici.mostraCanvas = function() {
+                var contenitore = document.getElementById('contenitore');
+                contenitore.style.display = 'block';
+            };
+
+            /*
+             * Evento scatenato al caricamento completo della pagina
+             * Nota: document.onload viene scatenato al caricamento del solo DOM (es. no immagini)
+             */
+            window.onload = function() {
+                var canvas = document.getElementById('canvas');
+                var context = canvas.getContext('2d');
+                context.fillText('Doppio click per nascondere', 10, 10);
+
+                var time = test.profila(test.pi);
+                logX('Test OK: ' + time);
+            };
+        </script>
+        <!-- inclusione di un secondo blocco script -->
+        <script src="./webapp.js" type="text/javascript"></script>
+        <!-- l'attributo "type" non è più richiesto per HTML5 -->
+        <style type="text/css">
+            #contenitore {
+                display: block;
+                width: 300px;
+                height: 300px;
+                position: absolute;
+                left: 30%;
+                top: 10%;
+                border: solid greenyellow 1px;
+                background-color: lightyellow;
+            }
+            canvas {
+                width: 100%;
+                height: 100%;
+            }
+        </style>
+    </head>
+    <body>
+        <input type="text" id="txtSaluto" value="Ciao!">
+        <br>
+        <input type="button" id="btnSaluta" value="Saluta" onclick="saluta()">
+        <br>
+        <br>
+        <input type="button" id="btnAccelerometro" value="Test accelerometro (asse X)" onclick="getAccelerazioneX()">
+        <br>
+        <br>
+        <input type="button" id="btnMostraCanvas" value="Mostra il canvas" onclick="grafici.mostraCanvas()">
+        <br>
+        <!-- div che contiene il canvas su cui disegnare-->
+        <div id="contenitore" onclick="grafici.disegna();" ondblclick="this.style.display='none'">
+            <canvas id="canvas" ></canvas>
+        </div>
+    </body>
+</html>
