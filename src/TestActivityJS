@@ -1,0 +1,157 @@
+package test.android;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
+/**
+ *
+ * @author paoloc
+ */
+public class TestActivityJS {
+
+    private final int CAMPIONAMENTO = 10000;
+    private long inizio = 0;
+    private final float NOISE = (float) 2.0;
+
+    private List<Misura> misurazioni = new ArrayList<Misura>(1000);
+
+    public void onSensorChanged(SensorEvent event) {
+        float x = event.values[0];
+        float y = event.values[1];
+        float z = event.values[2];
+
+        long tempo = event.timestamp;
+        Sensor sensor = event.sensor;
+
+        if (inizio == 0) {
+            inizio = tempo;        // la prima volta devo inizializzare la partenza del tempo
+        }
+        if (tempo - inizio > CAMPIONAMENTO) {   // sono finiti 10 ms
+
+            Misura misurazione = new Misura(sensor.getType(), tempo);
+
+            // N.B.: qui ho messo i valori di partenza, tu puoi salvarti anche
+            // quelli derivati, i "delta" tra il valore corrente e il precedente
+            float[] valoriMisura = new float[]{x, y, z};
+
+            misurazione.setMisure(valoriMisura);
+
+            misurazioni.add(misurazione);
+        }
+    }
+
+    public class WebAppMiddleware {
+
+        WebAppMiddleware() {
+        }
+
+        // restituisce un array[3] di float con i valori dell'accelerazione x,y,z
+        @JavascriptInterface
+        public float[] getData() {
+            // giustamente scrivi:
+            // JS non ha gli array bidimensionali !!!!
+            /* pare che l'interfaccia con JS supporti solo Stringhe e dati primitivi
+             * Le opzioni sono:
+             * - restituire un float alla volta, ciascuno in un metodo dedicato
+             * - usare JSON, ossia una stringa che definisce un oggetto JS (vedi metodo sotto)
+             */
+            // commento altrimenti non compila:
+            /*
+             float[] mis;
+             int i, k;
+             mis[0] = misC;
+             for (k = 0; k < 12; k++) {
+             for (i = 0; i < (k + 1) * misC; i++) {
+             mis[k * i + 1] = misure[i][k];
+             }
+             }
+             return mis;
+             */
+            return new float[]{0, 0, 0};
+        }
+
+        // esempio di restituzione in formato JSON:
+        // N.B.: ho messo su un accrocchio, ci son librerie dedicate: es. GSON
+        @JavascriptInterface
+        public String getDataAsJSON() {
+            int size = misurazioni.size();
+            String json = "{";
+            for (Misura misura : misurazioni) {
+                json += "'tipo':" + misura.tipoSensore;
+                json += ", 'tempo':" + misura.tempo;
+                json += ", 'misure': {"
+                        + misura.getMisure()[0] + ","
+                        + misura.getMisure()[1] + ","
+                        + misura.getMisure()[2]
+                        + "}";
+                if (--size != 0) {
+                    json += ",";
+                }
+            }
+            json += "}";
+
+            return json;
+        }
+
+        @JavascriptInterface
+        public void via() {   // per esperimenti lego a un pulsante VIA.
+            // tieni questi:
+            //sensorManager.registerListener(c, accelerometer, SensorManager.SENSOR_DELAY_NORMAL);
+            //sensorManager.registerListener(c, giroscopio, SensorManager.SENSOR_DELAY_NORMAL);
+            //sensorManager.registerListener(c, gravità, SensorManager.SENSOR_DELAY_NORMAL);
+            // e resetti tutte le misurazioni
+            misurazioni = new ArrayList<Misura>(1000);
+        }
+
+        @JavascriptInterface
+        public void stop() {    // per esperimenti lego a un pulsante STOP.
+        }
+    }
+
+    /**
+     * Incapsula le misurazioni effettuate
+     */
+    public class Misura {
+
+        public long tempo = 0;
+        public int tipoSensore = 0;
+        private float misure[] = new float[3];
+
+        public Misura(int type, long timestamp) {
+            tipoSensore = type;
+            tempo = timestamp;
+        }
+
+        public void setMisure(float[] misure) {
+            this.misure = misure;
+        }
+
+        public float[] getMisure() {
+            return this.misure;
+        }
+    }
+
+    // tutto il codice a seguire è un mock per le classi android
+    // (che mi rifiuto di usare! ;) )
+    // a te non serve perché usi le classi/interfacce reali
+    public class SensorEvent {
+
+        public Sensor sensor = new Sensor();
+        public long timestamp = new Date().getTime();
+        public float[] values = new float[]{1, 2, 3};
+    }
+
+    public static class Sensor {
+
+        public static int TYPE_ACCELEROMETER = 1;
+        public static int TYPE_GYROSCOPE = 2;
+
+        public int getType() {
+            return 1;
+        }
+    }
+
+    public @interface JavascriptInterface {
+    }
+}
